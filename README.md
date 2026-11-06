@@ -3,7 +3,9 @@
 2013 Land Cruiser Prado J150, 1KD-FTV / A750F. Engine ECU `7E0`→`7E8`, transmission ECU `7E1`→`7E9`,
 CAN 11-bit 500 kbps. Generated from `mode21_map.csv`, the two scans in `scans/` and
 `MODE21_DIFF_idle1_vs_idlerpm.md`. **Off** = ignition on, engine off (`scans/20261105_000211_idle1`);
-**Idle** = cold idle ~890 rpm (`scans/20261105_000624_idlerpm`).
+**Idle** = cold idle ~890 rpm (`scans/20261105_000624_idlerpm`). **City drive** =
+`scans/20261106_132017_city` (17 min, 0–71 km/h, coolant 22→85 °C), decoded to `decoded_table.csv`
+in that folder; certainties marked "city drive" in *Basis* were set from it.
 
 **Reading the tables**
 
@@ -291,9 +293,9 @@ Send `ATSH7E0` first, then `21xx`. Blocks `2101`–`214E` mirror Mode 01 PIDs (s
 | 0.5 | Exhaust Temperature B1S3 Supported | 0=Unsupp, 1=Supp |  | Supp | Supp | High | Techstream definition; block pinned, readings plausible |
 | 0.6 | Exhaust Temperature B1S2 Supported | 0=Unsupp, 1=Supp |  | Supp | Supp | High | Techstream definition; block pinned, readings plausible |
 | 0.7 | Exhaust Temperature B1S1 Supported | 0=Unsupp, 1=Supp |  | Supp | Supp | High | Techstream definition; block pinned, readings plausible |
-| 1–2 | Exhaust Temperature B1S1 | raw × 0.1 − 40 | °C | 11.8 | 67.5 | High | Techstream definition; block pinned, readings plausible |
-| 3–4 | Exhaust Temperature B1S2 | raw × 0.1 − 40 | °C | 11.8 | 61.2 | High | Techstream definition; block pinned, readings plausible |
-| 5–6 | Exhaust Temperature B1S3 | raw × 0.1 − 40 | °C | 3.1 | 21.2 | High | Techstream definition; block pinned, readings plausible |
+| 1–2 | Exhaust Temperature B1S1 | raw × 0.1 − 40 | °C | 11.8 | 67.5 | High | Techstream definition; block pinned; city drive: peaked at 331 °C under load |
+| 3–4 | Exhaust Temperature B1S2 | raw × 0.1 − 40 | °C | 11.8 | 61.2 | High | Techstream definition; block pinned; city drive: peaked at 373 °C under load |
+| 5–6 | Exhaust Temperature B1S3 | raw × 0.1 − 40 | °C | 3.1 | 21.2 | High | Techstream definition; block pinned; city drive: peaked at 318 °C under load |
 | 7–8 | Exhaust Temperature B1S4 | raw × 0.1 − 40 | °C | -40.0 | -40.0 | High | Techstream definition; block pinned, readings plausible |
 
 ### `21A3` — block pinned by: 16 B; target idle 875 rpm, 1 start, 894 rpm starter-off at idle
@@ -349,7 +351,7 @@ Send `ATSH7E0` first, then `21xx`. Blocks `2101`–`214E` mirror Mode 01 PIDs (s
 | 0 | Received MIL from ECT | 0=OFF, 90=ON |  | OFF | OFF | High | Techstream definition; block pinned, readings plausible |
 | 1 | Shift Position Sig from ECT | 0=1st, 1=2nd, 2=3rd, 3=4th, 4=5th, 5=6th, 6=7th, 7=8th |  | 1st | 1st | High | Techstream definition; block pinned, readings plausible |
 | 2–3 | A/T Oil Temp from ECT | raw × 0.00390625 − 40 | °C | 17.5 | 18.8 | High | Techstream definition; block pinned, readings plausible |
-| 4 | SPD (NO) | raw × 50 | rpm | 0 | 0 | High | Techstream definition; block pinned, readings plausible |
+| 4 | SPD (NO) | raw × 50 | rpm | 0 | 0 | High | Techstream definition; block pinned; city drive: gearbox output shaft speed, ~26.7 rpm per km/h (0–1900 rpm) |
 | 5.7 | ECT Lock Up | 0=OFF, 1=ON |  | OFF | OFF | High | Techstream definition; block pinned, readings plausible |
 
 ### `21C1` — block pinned by: 18 B; ASCII KDJ15# 1KDFTV
@@ -398,9 +400,9 @@ Send `ATSH7E0` first, then `21xx`. Blocks `2101`–`214E` mirror Mode 01 PIDs (s
 | 8.7 | Injector Memory Error | 0=No Error, 1=Error |  | No Error | No Error | High | Techstream definition; block pinned, readings plausible |
 | 9.6 | Reju Pilot Quantity Learning | 0=READY, 1=NG |  | READY | READY | High | Techstream definition; block pinned, readings plausible |
 | 10.4–7 | Pilot Quantity Learning | 0=Standby, 1=Wait, 2=Learn, 4=Stop, 8=Comple |  | Standby | Standby | High | Techstream definition; block pinned, readings plausible |
-| 11 | Fuel Return Temp | raw − 40 | °C | 40 | 41 | Med | reads 40–41 °C even cold with the engine off; sensor may not be fitted |
+| 11 | Fuel Return Temp | raw − 40 | °C | 40 | 41 | Med-high | city drive: rose 41→60 °C in step with fuel temp (corr 0.98), so the sensor is fitted; still unexplained why it reads 40–41 °C when cold |
 | 12 | Target Throttle Position | raw (signed) | % | 0 | 85 | High | Techstream definition; block pinned, readings plausible |
-| 13–14 | Catalyst Differential Press | raw × 0.00012207 (signed) |  | 0.0000 | 0.0187 ⚠ | Med | sits outside Techstream's own range; a DPNR field, probably unused on this DPF engine |
+| 13–14 | Catalyst Differential Press | raw × 0.00012207 (signed) |  | 0.0000 | 0.0187 ⚠ | Med | sits outside Techstream's own range; a DPNR field, probably unused on this DPF engine. City drive: stayed 0.02–0.08 and didn't follow DPF ΔP or MAF |
 | 15–16 | Exhaust Fuel Addition FB | raw × 0.0078125 (signed) |  | 1.00 | 1.00 | High | Techstream definition; block pinned, readings plausible |
 | 17–18 | Target Booster Pressure | raw × 0.0195312 (signed) | kPa | 98.36 | 116.70 | High | Techstream definition; block pinned, readings plausible |
 | 19–20 | Target Common Rail Pressure | raw × 10 | kPa | 30000 | 37830 | High | Techstream definition; block pinned, readings plausible |
@@ -408,7 +410,7 @@ Send `ATSH7E0` first, then `21xx`. Blocks `2101`–`214E` mirror Mode 01 PIDs (s
 | 22–23 | VN Position Sensor Out | raw × 7.62939e-05 | V | 1.704 | 1.860 | High | Techstream definition; block pinned, readings plausible |
 | 24 | VN Motor Duty | raw × 0.5 | % | 0.0 | 0.0 | High | Techstream definition; block pinned, readings plausible |
 | 25–26 | VN Close Learn Value | raw × 7.62939e-05 | V | 1.646 | 1.646 | High | Techstream definition; block pinned, readings plausible |
-| 27 | PM Accumulation Ratio | raw × 2 | % | 58 | 58 | Med-high | Techstream definition; idle doesn't move it, not yet seen under load or regen |
+| 27 | PM Accumulation Ratio | raw × 2 | % | 58 | 58 | Med-high | Techstream definition; city drive: rose 58→60→62 % over 17 min, as soot load should; the scaling is unchecked until a regen is seen |
 | 28 | Glow Control Unit Duty | raw × 0.5 | % | 0.0 | 63.5 | High | Techstream definition; block pinned, readings plausible |
 
 ### `21DE` — block pinned by: 5 B; accel sensor volts 0.8/1.6 V match pedal % 15.7/31.8
@@ -431,9 +433,9 @@ Send `ATSH7E0` first, then `21xx`. Blocks `2101`–`214E` mirror Mode 01 PIDs (s
 | 5–6 | Injection Pressure Correction | raw × 0.0195312 − 500 | mm3/st | 0.0 | 3.9 | High | Techstream definition; block pinned, readings plausible |
 | 7–8 | AF Sensor Learning Value | raw × 0.000152588 | V | 1.86 | 1.86 | High | Techstream definition; block pinned, readings plausible |
 | 9–10 | Diff. Press. Sensor Corr. | raw × 0.00390625 − 10 | kPa | -0.3 | -0.3 | High | Techstream definition; block pinned, readings plausible |
-| 11 | DPNR/DPF Status Reju(PM) | 0=Standby, 1=Ready, 2=Operate, 3=Compl |  | Standby | Standby | Med-high | Techstream definition; only ever read Standby, a regen not yet seen |
+| 11 | DPNR/DPF Status Reju(PM) | 0=Standby, 1=Ready, 2=Operate, 3=Compl |  | Standby | Standby | Med-high | Techstream definition; only ever read Standby (all 564 reads of the city drive too), a regen not yet seen |
 | 12 | Idle Signal Output Value | raw |  | 0 | 1 | High | Techstream definition; block pinned, readings plausible |
-| 13–14 | Boost Pressure Deviation | raw × 0.0195312 (signed) | kPa | -3.57 ⚠ | 18.42 | Med | Techstream definition, but a reading fell outside its own range |
+| 13–14 | Boost Pressure Deviation | raw × 0.0195312 (signed) | kPa | -3.57 ⚠ | 18.42 | High | city drive: equals target boost (`21DD` 17–18) − MAP (`21B6` 8), median error ≈1 kPa (≈0.7 kPa in steady state; larger on transients because the reads are ~1 s apart); negatives are mostly boost overshoot (MAP above target), which Techstream's 0 minimum doesn't allow for |
 | 15.7 | VN Turbo Operation Prohibit | 0=OK, 1=NG |  | OK | OK | High | Techstream definition; block pinned, readings plausible |
 
 ### `21E1` — block pinned by: 8 B; only 8-byte block
@@ -485,7 +487,7 @@ Send `ATSH7E0` first, then `21xx`. Blocks `2101`–`214E` mirror Mode 01 PIDs (s
 
 | Bytes | Name | Scaling | Unit | Off | Idle | Certainty | Basis |
 |---|---|---|---|---|---|---|---|
-| 0–1 | DPF Differential Pressure | raw × 0.00390625 − 5 | kPa | 0.301 | 0.426 | Med-high | Techstream definition; idle doesn't move it, not yet seen under load or regen |
+| 0–1 | DPF Differential Pressure | raw × 0.00390625 − 5 | kPa | 0.301 | 0.426 | High | Techstream definition; city drive: rose to 13.2 kPa under load, following exhaust flow (corr 0.77 with MAF), and fell back to ~0.55 kPa when stopped |
 | 2–3 | Engine Oil Pressure | raw × 0.078125 − 2560 | kPa | 1.953 | 126.406 | High | Techstream definition; block pinned, readings plausible |
 
 ### `21F1` — block pinned by: 5 B; initial coolant 16.9 C = coolant at key-on
@@ -512,22 +514,22 @@ Send `ATSH7E0` first, then `21xx`. Blocks `2101`–`214E` mirror Mode 01 PIDs (s
 |---|---|---|---|---|---|---|---|
 | 0.0 | Check Mode | 0=OFF, 1=ON |  | — | — | Low | Techstream defines it, but no Mode 21 block matched |
 
-## 4. Mode 21 — transmission (7E1), guesses
+## 4. Mode 21 — transmission (7E1), inferred (no Techstream definition)
 
-The saved Techstream session covers the engine only, so these come from the engine-off vs idle diff.
-Saving a session with the ECT Data List open and running `tse_map.py` on it would settle them.
-Send `ATSH7E1` first.
+The saved Techstream session covers the engine only, so these come from the engine-off vs idle diff,
+checked against the engine's own channels over the city drive. Saving a session with the ECT Data
+List open and running `tse_map.py` on it would settle them. Send `ATSH7E1` first.
 
-| Block | Bytes | Off | Idle | Candidate decode | Likely name | Certainty |
-|---|---|---|---|---|---|---|
-| `21D9` | 4–5 | 3A 20 | 3D 40 | raw ÷ 256 − 40 → 18.1 → 21.3 °C | ATF temp No.1 | Med-high |
-| `21D9` | 6–7 | 3A 20 | 3C A0 | raw ÷ 256 − 40 → 18.1 → 20.6 °C | ATF temp No.2 (or torque-converter outlet) | Med |
-| `21D9` | 0 | 00 | 10 | flag | Shift / lock-up status bit? | Low |
-| `21B4` | 0–1 | 00 00 | 0D 51 | raw ÷ 4 → 852 rpm | Engine RPM (as the TCM sees it) | Med-high |
-| `21B4` | 2 | 40 | 3B | raw − 40 → 19 °C | Intake air temp | Med |
-| `21B4` | 3 | 38 | 47 | raw − 40 → 31 °C | Coolant | Med-high |
-| `21B4` | 5–6 | 00 00 | 01 BB | 443 (×2 ≈ 886 rpm in P) | Turbine / input speed? | Low |
-| `21E1` | 6–7 | 06 63 | 0F 09 | rises ~8.7/s, same as engine `21E1` | Timer since key-on (unit unknown) | High (that it's a timer) |
+| Block | Bytes | Off | Idle | Candidate decode | Likely name | Certainty | City drive |
+|---|---|---|---|---|---|---|---|
+| `21D9` | 4–5 | 3A 20 | 3D 40 | raw ÷ 256 − 40 → 18.1 → 21.3 °C | ATF temp No.1 | High | tracked the engine's ATF copy (`21B5` 2–3) from 17 to 55 °C, corr 0.999, 0.7 °C higher on average |
+| `21D9` | 6–7 | 3A 20 | 3C A0 | raw ÷ 256 − 40 → 18.1 → 20.6 °C | ATF temp No.2 (or torque-converter outlet) | Med | a real temperature (corr 0.99 with ATF No.1), but ran up to 9 °C hotter (peaked at 60 °C); which sensor is still open |
+| `21D9` | 0 | 00 | 10 | not a flag: one byte, 0x00–0x3E | unknown | Low | took ~50 different values, so the status-bit guess is wrong |
+| `21B4` | 0–1 | 00 00 | 0D 51 | raw ÷ 4 → 852 rpm | Engine RPM (as the TCM sees it) | High | matched engine rpm (`21B6` 9–10) to a median 5 rpm once the 1.16 s gap between the two reads is interpolated; 630–3309 rpm |
+| `21B4` | 2 | 40 | 3B | raw − 40 → 19 °C | Intake air temp | High | equal to the engine's intake air temp in 508 of 564 rows, never more than 2 °C apart |
+| `21B4` | 3 | 38 | 47 | raw − 40 → 31 °C | Coolant | High | equal to the engine's coolant in 511 of 564 rows from 22 to 85 °C, never more than 1 °C apart |
+| `21B4` | 5–6 | 00 00 | 01 BB | 0–4556 while driving | unknown (not turbine speed) | Low | reads ~555 (median) at standstill with the engine idling, drops to 0 at 31–63 km/h with the engine at 1000–2200 rpm, and correlates only 0.28 with output shaft speed (`21B5` byte 4), so the turbine guess fails |
+| `21E1` | 6–7 | 06 63 | 0F 09 | rises ~8.7/s, same as engine `21E1` | Timer since key-on (unit unknown) | High (that it's a timer) | not polled |
 
 ## 5. Blocks that answer but have no definition yet
 
